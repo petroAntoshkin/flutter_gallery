@@ -24,23 +24,18 @@ class GalleryProvider extends ChangeNotifier{
   }
 
   void _checkConnection() async {
-    // _applyCashedInfo();
+    // List.generate(_maxImagesCount, (index) => _allPictures.add(''));
     _haveAnInternet = false;
     try {
       _haveAnInternet = await CheckInet.checkInternet;
-      // _applyCashedInfo();
     } on Exception {
       _haveAnInternet = false;
-      _applyCashedInfo();
     }
     if(_haveAnInternet) _getImages();
-    statusText = _haveAnInternet ? 'Internet connection detected' : 'No internet';
-    if(!_haveAnInternet) _applyCashedInfo();
     notifyListeners();
   }
 
   Future<void> _getImages() async {
-
     final Uri _catsImagesUrl =
     Uri.https('api.thecatapi.com', '/v1/images/search', {
       'size': 'med',
@@ -60,11 +55,9 @@ class GalleryProvider extends ChangeNotifier{
       _cashManager.clearCash();
       // don't need in this project
       // _cashManager.cashStringData(res.body);
-      statusText = 'Response arrived';
     } else {
       _errorText = res.reasonPhrase;
       statusText = _errorText;
-      _applyCashedInfo();
     }
     notifyListeners();
   }
@@ -85,6 +78,7 @@ class GalleryProvider extends ChangeNotifier{
   void _initCashFolder() async{
     _appDirectory = await getApplicationDocumentsDirectory();
     _cashManager = CashManagerImplementation(cashFolderString: '${_appDirectory.path}/cash/');
+    if(!_haveAnInternet) _applyCashedInfo();
   }
 
   CashManager get cashManager => _cashManager;
@@ -96,13 +90,13 @@ class GalleryProvider extends ChangeNotifier{
   String get statusText => _statusText;
 
   void _applyCashedInfo() {
-    statusText = 'Start images from cash.';
     _allPictures = [];
     List<String> _all = _cashManager.getCashFiles();
-    statusText = 'Load images from cash. Cashed ${_all.length} files';
-    for(int i = 0; i< _maxImagesCount; i++){
-      i < _all.length ? _allPictures.add(_all[i]) : _allPictures.add('');
+    // statusText = 'cash folder: ${Directory('${_appDirectory.path}/cash/').existsSync()} files count:${_all.length}';
+    for(int i = 0; i < _maxImagesCount; i++){
+      _allPictures.add(i < _all.length ? _all[i] : '');
     }
+    // statusText = 'array of pictures filled files count:${_allPictures.length}';
     notifyListeners();
   }
 

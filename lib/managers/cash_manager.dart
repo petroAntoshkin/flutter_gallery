@@ -28,7 +28,7 @@ class CashManagerImplementation implements CashManager {
 
   List<String> getCashFiles() {
     List<String> _res = [];
-    for (int i = 0; i < _cashedFiles.length; i++) _res.add(_cashedFiles[i].path);
+    if(_cashedFiles != null) for (int i = 0; i < _cashedFiles.length; i++) _res.add(_cashedFiles[i].path);
     return _res;
   }
 
